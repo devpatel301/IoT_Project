@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Gesture Glove Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <!-- Firebase Database -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>Smart Gesture Glove Dashboard</h1>
+        <div class="connection-status">
+          <div id="status-indicator"></div>
+          <span id="connection-text">Connecting...</span>
+        </div>
+      </header>
+
+      <main>
+        <section class="card">
+          <div class="card-header">
+            <h2>Project Overview</h2>
+          </div>
+          <div class="info-content">
+            <p>
+              The <strong>Wearable Gesture-Controlled Smart Glove</strong> is
+              designed to empower amputees and individuals with limited hand
+              mobility by enabling intuitive control of various devices through
+              hand gestures.
+            </p>
+
+            <div class="info-box">
+              <h3>Sensor Components:</h3>
+              <ul>
+                <li>1 Flex Sensor</li>
+                <li>MPU 6050</li>
+                <li>ESP32 WROOM Controller</li>
+                <li>IR Transmitter - Receiver</li>
+                <li>Coin Vibration Motor</li>
+                <li>Push Buttons</li>
+              </ul>
+            </div>
+
+            <div class="info-box">
+              <h3>Data Flow:</h3>
+              <ul>
+                <li>Sensors capture hand gestures</li>
+                <li>ESP32 processes the raw sensor data</li>
+                <li>Data is transmitted via WiFi to Firebase</li>
+                <li>Dashboard displays real-time data updates</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <h2>Keyboard Shortcuts for Gesture Simulation</h2>
+          </div>
+          <div class="keyboard-shortcuts">
+            <div class="shortcut-group">
+              <h3>Hand Gestures:</h3>
+              <ul>
+                <li><kbd>1</kbd> Yaw Left</li>
+                <li><kbd>2</kbd> Yaw Right</li>
+                <li><kbd>3</kbd> Pitch Up</li>
+                <li><kbd>4</kbd> Pitch Down</li>
+                <li><kbd>5</kbd> Roll Left</li>
+                <li><kbd>6</kbd> Roll Right</li>
+              </ul>
+            </div>
+            <div class="shortcut-group">
+              <h3>Finger Combinations:</h3>
+              <ul>
+                <li><kbd>7</kbd> Index Button</li>
+                <li><kbd>8</kbd> Middle Button</li>
+                <li><kbd>9</kbd> Index Finger Bent</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Mode</th>
+                  <th>Flex State</th>
+                  <th>MPU Reading</th>
+                  <th>IR State</th>
+                  <th>Gesture</th>
+                </tr>
+              </thead>
+              <tbody id="data-table-body">
+                <tr class="empty-state">
+                  <td colspan="4">
+                    No sensor data available. Connect the glove to start.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <h2>Gesture Recognition</h2>
+          </div>
+          <div class="current-gesture">
+            <h3>
+              Current Gesture: <span id="current-gesture-text">None</span>
+            </h3>
+            <!-- Flex sensor state -->
+            <div class="state-item">
+              <div class="state-label">Flex Sensor</div>
+              <div id="flex-state" class="state-value inactive">STRAIGHT</div>
+            </div>
+            <p id="current-gesture-description">
+              No specific gesture detected or hand is in a neutral position.
+            </p>
+          </div>
+          <div id="gesture-grid" class="gesture-grid">
+            <!-- Gesture cards will be dynamically added here -->
+          </div>
+        </section>
+
+        <h2>Smart Home Control</h2>
+
+        <!-- Gesture Guide -->
+        <div class="gesture-guide">
+          <h3>Smart Home Gesture Guide</h3>
+          <ul class="guide-list">
+            <li><span class="guide-gesture">Pitch Up</span> Navigate Up</li>
+            <li><span class="guide-gesture">Pitch Down</span> Navigate Down</li>
+            <li>
+              <span class="guide-gesture">Double Bend</span> Select/Toggle
+              On/Off
+            </li>
+            <li><span class="guide-gesture">Index Button</span> Value Down</li>
+            <li><span class="guide-gesture">Middle Button</span> Value Up</li>
+            <li>
+              <span class="guide-gesture">Yaw + Flex Bent</span> Undo Last
+              Action
+            </li>
+          </ul>
+        </div>
+
+        <section class="card">
+          <!-- <div class="card-header">
+                    <h2>Smart Home Control</h2>
+                </div>
+                <div class="file-explorer-instructions">
+                    <p>Use the following gestures to navigate through the smart home:</p>
+                    <ul>
+                        <li><strong>Palm Right:</strong> Enter room / Navigate into selection</li>
+                        <li><strong>Palm Left:</strong> Go back to previous menu</li>
+                        <li><strong>Palm Up/Down:</strong> Navigate through options</li>
+                        <li><strong>Fist Right/Left:</strong> Turn device on/off</li>
+                        <li><strong>Index Bent, Middle Straight:</strong> Turn device on</li>
+                        <li><strong>Index Straight, Middle Bent:</strong> Turn device off</li>
+                        <li><strong>Both Bent:</strong> Return to home</li>
+                    </ul>
+                </div> -->
+          <div class="file-explorer-container">
+            <div class="file-explorer-navigation">
+              <div id="current-path" class="current-path">/Home</div>
+            </div>
+            <div id="file-explorer" class="file-explorer">
+              <!-- File explorer content will be dynamically added here -->
+            </div>
+            <div id="file-action-status" class="file-action-status">Ready</div>
+          </div>
+        </section>
+
+        <!-- Baad me kabhi zarurat pade to enable karenge -->
+        <!-- Mode Selector for Testing -->
+        <!-- <div class="mode-selector-container">
+                <label for="mode-selector">Current Mode:</label>
+                <select id="mode-selector">
+                <option value="1">Smart Home (1)</option>
+                <option value="2">BLE Mouse (2)</option>
+                <option value="3">IR Mode (3)</option>
+                <option value="4">Offline (4)</option>
+                </select>
+            </div> -->
+
+        <!-- Complete Gesture Logs Section -->
+        <section class="card">
+          <div class="card-header">
+            <h2>Complete Gesture Logs</h2>
+
+            <div class="log-actions">
+              <span id="log-count">0</span> entries found
+              <!-- <button class="btn btn-danger" onclick="clearAllLogs()">Clear All</button> -->
+            </div>
+          </div>
+          <div class="logs-table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Mode</th>
+                  <th>Flex State</th>
+                  <th>MPU Reading</th>
+                  <th>IR State</th>
+                  <th>Gesture</th>
+                </tr>
+              </thead>
+              <tbody id="logs-table-body">
+                <tr class="empty-state">
+                  <td colspan="6">Loading logs...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>
+          &copy; <span id="current-year">2025</span> Smart Gesture Glove Project
+        </p>
+        <p class="tagline">
+          Empowering mobility through intuitive gesture recognition
+        </p>
+      </footer>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/ui-components.js"></script>
+    <script src="js/firebase-service.js"></script>
+    <script src="js/smart-home.js"></script>
+    <script src="js/gesture-handler.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>
